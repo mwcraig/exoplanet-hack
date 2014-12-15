@@ -3,8 +3,7 @@ from __future__ import print_function, division
 import numpy as np
 
 
-def z(time, midpoint, duration, impact_param, semi_major=11.17,
-      orb_period=2.875317, inclination=86.6):
+def z(time, midpoint, duration, impact_param, planet_radius):
     """
     Calculate the normalized center-to-center distance
 
@@ -25,12 +24,13 @@ def z(time, midpoint, duration, impact_param, semi_major=11.17,
 
     float
     """
-    z = np.sqrt(4 * (time - midpoint)**2 / duration**2 * (1 - impact_param**2)
+    p_term = (1 + planet_radius)**2
+    z = np.sqrt(4 * (time - midpoint)**2 / duration**2 * (p_term - impact_param**2)
                 + impact_param**2)
-    orb_freq = 2*np.pi/orb_period
-    incl_rad = inclination/180*np.pi
-    z = semi_major * np.sqrt(np.sin(orb_freq*(time-midpoint))**2 +
-                             (np.cos(incl_rad)*np.cos(orb_freq*(time-midpoint)))**2)
+    #orb_freq = 2*np.pi/orb_period
+    #incl_rad = inclination/180*np.pi
+    # z = semi_major * np.sqrt(np.sin(orb_freq*(time-midpoint))**2 +
+    #                          (np.cos(incl_rad)*np.cos(orb_freq*(time-midpoint)))**2)
     return z
 
 
@@ -70,7 +70,7 @@ def mag_fit(params, t, z_0, c1=0.5, t_mean=0):
     midpoint = params[1]
     duration = params[2]
     scaled_radius = params[3]
-    z_t = z(t, midpoint, duration, z_0)
+    z_t = z(t, midpoint, duration, z_0, scaled_radius)
     zero_point = params[0]
     linear_term = params[4] * (t - t_mean)
     quadratic_term = params[5] * (t - t_mean)**2
